@@ -1,5 +1,6 @@
 package lk.ijse.controllers;
 
+import jakarta.json.JsonException;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
@@ -24,8 +25,8 @@ import java.util.ArrayList;
 
 @WebServlet(urlPatterns = "/customer")
 public class CustomerController extends HttpServlet {
-    private DataSource pool;
-    private Connection connection;
+
+     Connection connection;
 
     @Override
     public void init() {
@@ -47,7 +48,7 @@ public class CustomerController extends HttpServlet {
         DataSource pool = (DataSource) getServletContext().getAttribute("dbPool");
         try {
             // Retrieve all customers
-            ArrayList<CustomerDTO> customerList = customerBO.getAllCustomer(pool);
+            ArrayList<CustomerDTO> customerList = customerBO.getAllCustomer(connection);
 
             // Create a Jsonb instance
             JsonbConfig config = new JsonbConfig().withFormatting(true);
@@ -70,54 +71,35 @@ public class CustomerController extends HttpServlet {
 
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         //check content type application/json
-        if (!req.getContentType().equals("application/json")) {
+        System.out.println("hello");
+        if (!req.getContentType().toLowerCase().startsWith("application/json") || req.getContentType() == null) {
             resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Content type must be application/json");
-            return;
         }
-        try {
-            // Obtain a connection from the DataSource
-            connection = pool.getConnection();
-
-            // Read the JSON from the request body
-            BufferedReader reader = req.getReader();
-            StringBuilder jsonBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jsonBuilder.append(line);
-            }
-            String json = jsonBuilder.toString();
-
-            // Create a Jsonb instance and deserialize the JSON to a CustomerDTO object
-            JsonbConfig config = new JsonbConfig().withFormatting(true);
-            Jsonb jsonb = JsonbBuilder.create(config);
-            CustomerDTO customerDTO = jsonb.fromJson(json, CustomerDTO.class);
-
-            // Save the customer using the business logic
-            boolean isSaved = customerBO.saveCustomer(customerDTO, pool);
-
-            // Send response back to the client
-            if (isSaved) {
+        System.out.println("start try catch");
+        try (var writer = resp.getWriter()){
+            Jsonb jsonb = JsonbBuilder.create();
+            CustomerDTO customerDTO = jsonb.fromJson(req.getReader(), CustomerDTO.class);
+            System.out.println("customerDTO "+customerDTO);
+            boolean isSaved = customerBO.saveCustomer(customerDTO, connection);
+            if (isSaved){
+                System.out.println("Customer saved");
+                writer.println("Customer saved");
                 resp.setStatus(HttpServletResponse.SC_CREATED);
-                resp.getWriter().write("{\"message\":\"Customer saved successfully\"}");
-            } else {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                resp.getWriter().write("{\"message\":\"Failed to save customer\"}");
+            }else{
+
+                writer.println("Customer not saved");
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             }
 
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        } finally {
-            // Always close the connection to prevent resource leaks
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+        } catch (JsonException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

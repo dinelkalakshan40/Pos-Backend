@@ -6,5 +6,5 @@ import lk.ijse.entity.Customer;
 
 import javax.sql.DataSource;
 
-public interface CustomerDAO extends CrudDAO<Customer,  DataSource> {
+public interface CustomerDAO extends CrudDAO<Customer> {
 }
