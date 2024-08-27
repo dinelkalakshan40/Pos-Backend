@@ -50,13 +50,12 @@ public class CustomerController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("get request");
-        System.out.println("getWriter");
+
         try (PrintWriter out = resp.getWriter()) {
             // Generate a new customer ID using the connection initialized in init()
-            System.out.println("connection " + connection);
+
             String newCustomerId = customerBO.generateNewCustomerId(connection);
-            System.out.println("customerBO");
+
             // Set response content type
             resp.setContentType("text/plain");
 

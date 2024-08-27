@@ -50,12 +50,12 @@ public class CustomerDAOImpl implements CustomerDAO {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                System.out.println("next");
+
                 String lastId = rs.getString("id");
-                System.out.println("id");
+
                 // Extract the numeric part from the ID
                 int idNum = Integer.parseInt(lastId.substring(4));
-                System.out.println("subString");
+
                 // Increment the numeric part
                 idNum++;
 

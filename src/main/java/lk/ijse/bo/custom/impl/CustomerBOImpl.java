@@ -31,7 +31,6 @@ public class CustomerBOImpl implements CustomerBO {
 
     @Override
     public String generateNewCustomerId(Connection connection) throws SQLException, ClassNotFoundException {
-        System.out.println("generate new id called");
         return customerDAO.generateNewId(connection);
     }
 
