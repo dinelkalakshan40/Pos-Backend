@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lk.ijse.bo.BOFactory;
 import lk.ijse.bo.custom.CustomerBO;
+import lk.ijse.bo.custom.impl.CustomerBOImpl;
 import lk.ijse.dto.CustomerDTO;
 
 
@@ -19,6 +20,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,7 +28,8 @@ import java.util.ArrayList;
 @WebServlet(urlPatterns = "/customer")
 public class CustomerController extends HttpServlet {
 
-     Connection connection;
+    Connection connection;
+
 
     @Override
     public void init() {
@@ -34,6 +37,9 @@ public class CustomerController extends HttpServlet {
             var ctx = new InitialContext();
             DataSource pool = (DataSource) ctx.lookup("java:comp/env/jdbc/cafe");
             this.connection = pool.getConnection();
+
+
+            //  customerBO = new CustomerBOImpl();
         } catch (NamingException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -44,30 +50,26 @@ public class CustomerController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("get request");
+        System.out.println("getWriter");
+        try (PrintWriter out = resp.getWriter()) {
+            // Generate a new customer ID using the connection initialized in init()
+            System.out.println("connection " + connection);
+            String newCustomerId = customerBO.generateNewCustomerId(connection);
+            System.out.println("customerBO");
+            // Set response content type
+            resp.setContentType("text/plain");
 
-        DataSource pool = (DataSource) getServletContext().getAttribute("dbPool");
-        try {
-            // Retrieve all customers
-            ArrayList<CustomerDTO> customerList = customerBO.getAllCustomer(connection);
+            System.out.println("newCustomerId " + newCustomerId);
 
-            // Create a Jsonb instance
-            JsonbConfig config = new JsonbConfig().withFormatting(true);
-            Jsonb jsonb = JsonbBuilder.create(config);
-
-            // Convert the list of CustomerDTOs to JSON
-            String customerJSON = jsonb.toJson(customerList);
-
-            // Write the JSON to the response
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
-            resp.getWriter().write(customerJSON);
-
+            // Send the generated customer ID as the response
+            out.print(newCustomerId);
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-    }
 
+    }
 
 
     @Override
@@ -78,16 +80,16 @@ public class CustomerController extends HttpServlet {
             resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Content type must be application/json");
         }
         System.out.println("start try catch");
-        try (var writer = resp.getWriter()){
+        try (var writer = resp.getWriter()) {
             Jsonb jsonb = JsonbBuilder.create();
             CustomerDTO customerDTO = jsonb.fromJson(req.getReader(), CustomerDTO.class);
-            System.out.println("customerDTO "+customerDTO);
+            System.out.println("customerDTO " + customerDTO);
             boolean isSaved = customerBO.saveCustomer(customerDTO, connection);
-            if (isSaved){
+            if (isSaved) {
                 System.out.println("Customer saved");
                 writer.println("Customer saved");
                 resp.setStatus(HttpServletResponse.SC_CREATED);
-            }else{
+            } else {
 
                 writer.println("Customer not saved");
                 resp.sendError(HttpServletResponse.SC_BAD_REQUEST);

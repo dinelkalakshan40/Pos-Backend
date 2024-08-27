@@ -29,6 +29,11 @@ public class CustomerBOImpl implements CustomerBO {
         return customerDAO.save(new Customer(customerDTO.getId(), customerDTO.getName(), customerDTO.getAddress(), customerDTO.getPhone()), connection);
     }
 
+    @Override
+    public String generateNewCustomerId(Connection connection) throws SQLException, ClassNotFoundException {
+        System.out.println("generate new id called");
+        return customerDAO.generateNewId(connection);
+    }
 
 
 }

@@ -43,5 +43,34 @@ public class CustomerDAOImpl implements CustomerDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+    @Override
+    public String generateNewId(Connection connection) throws SQLException {
+        System.out.println("customerDAOImpl");
+        String sql = "SELECT id FROM customer ORDER BY id DESC LIMIT 1";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                System.out.println("next");
+                String lastId = rs.getString("id");
+                System.out.println("id");
+                // Extract the numeric part from the ID
+                int idNum = Integer.parseInt(lastId.substring(4));
+                System.out.println("subString");
+                // Increment the numeric part
+                idNum++;
+
+                System.out.println("idNum " + idNum);
+
+                // Format the new ID
+                String newId = String.format("CID-%03d", idNum);
+
+                System.out.println("Generated ID: " + newId);
+                return newId;
+            } else {
+                System.out.println("Generated ID: " + "CID-001");
+                return "CID-001";
+            }
+        }
+    }
 
 }

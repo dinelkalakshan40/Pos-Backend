@@ -12,4 +12,6 @@ public interface CustomerBO extends SuperBo {
     ArrayList<CustomerDTO> getAllCustomer(Connection connection) throws SQLException, ClassNotFoundException;
 
     boolean saveCustomer(CustomerDTO customerDTO, Connection connection) throws SQLException, ClassNotFoundException;
+
+    String generateNewCustomerId(Connection connection) throws SQLException, ClassNotFoundException;
 }
