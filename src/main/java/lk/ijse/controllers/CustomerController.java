@@ -74,7 +74,7 @@ public class CustomerController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         //check content type application/json
-        System.out.println("hello");
+
         if (!req.getContentType().toLowerCase().startsWith("application/json") || req.getContentType() == null) {
             resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Content type must be application/json");
         }
@@ -82,7 +82,7 @@ public class CustomerController extends HttpServlet {
         try (var writer = resp.getWriter()) {
             Jsonb jsonb = JsonbBuilder.create();
             CustomerDTO customerDTO = jsonb.fromJson(req.getReader(), CustomerDTO.class);
-            System.out.println("customerDTO " + customerDTO);
+
             boolean isSaved = customerBO.saveCustomer(customerDTO, connection);
             if (isSaved) {
                 System.out.println("Customer saved");
