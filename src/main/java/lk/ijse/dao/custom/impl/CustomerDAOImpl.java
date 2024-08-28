@@ -6,29 +6,25 @@ import lk.ijse.entity.Customer;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
-    public ArrayList<Customer> getAll(Connection connection) throws SQLException {
-
-        String sql = "SELECT * FROM customer";
-        ArrayList<Customer> customerArrayList = new ArrayList<>();
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rst = stmt.executeQuery(sql)) {
-
-            while (rst.next()) {
-                Customer entity = new Customer(
-                        rst.getString("cus_id"),
-                        rst.getString("cus_name"),
-                        rst.getString("cus_address"),
-                        rst.getString("cus_mobile"));
-                customerArrayList.add(entity);
-            }
+    public List<Customer> getAll(Connection connection) throws SQLException {
+        var ps = connection.prepareStatement("SELECT * FROM customer");
+        var resultSet = ps.executeQuery();
+        List<Customer> customerList = new ArrayList<>();
+        while (resultSet.next()){
+            Customer customers = new Customer(
+                    resultSet.getString("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("address"),
+                    resultSet.getString("phone")
+            );
+            customerList.add(customers);
         }
-
-        return customerArrayList;
+        return customerList;
     }
 
     @Override
@@ -45,7 +41,6 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
     @Override
     public String generateNewId(Connection connection) throws SQLException {
-        System.out.println("customerDAOImpl");
         String sql = "SELECT id FROM customer ORDER BY id DESC LIMIT 1";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
@@ -59,12 +54,10 @@ public class CustomerDAOImpl implements CustomerDAO {
                 // Increment the numeric part
                 idNum++;
 
-                System.out.println("idNum " + idNum);
-
                 // Format the new ID
                 String newId = String.format("CID-%03d", idNum);
 
-                System.out.println("Generated ID: " + newId);
+
                 return newId;
             } else {
                 System.out.println("Generated ID: " + "CID-001");
@@ -72,5 +65,17 @@ public class CustomerDAOImpl implements CustomerDAO {
             }
         }
     }
+    /*@Override
+    public boolean update(Customer entity, Connection connection) throws SQLException {
+
+        String sql = "UPDATE customer SET cus_name=?,cus_address=?,cus_mobile=? WHERE cus_id=?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, entity.getName());
+            stmt.setString(2, entity.getAddress());
+            stmt.setString(3, entity.getPhone());
+            stmt.setString(4, entity.getId());
+            return stmt.executeUpdate() > 0;
+        }
+    }*/
 
 }

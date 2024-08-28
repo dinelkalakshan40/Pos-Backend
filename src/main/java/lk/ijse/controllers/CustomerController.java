@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet(urlPatterns = "/customer")
 public class CustomerController extends HttpServlet {
@@ -50,7 +51,7 @@ public class CustomerController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
+       
         try (PrintWriter out = resp.getWriter()) {
             // Generate a new customer ID using the connection initialized in init()
 
@@ -59,15 +60,35 @@ public class CustomerController extends HttpServlet {
             // Set response content type
             resp.setContentType("text/plain");
 
-            System.out.println("newCustomerId " + newCustomerId);
-
             // Send the generated customer ID as the response
             out.print(newCustomerId);
+
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-
+        loadAllCustomers(req, resp);
+        System.out.println("load");
+    }
+    private void loadAllCustomers(HttpServletRequest req, HttpServletResponse resp) {
+        try (var writer = resp.getWriter()) {
+            List<CustomerDTO> customerDTOList = customerBO.getAllCustomer(connection);
+            System.out.println("customerDTOList" + customerDTOList);
+            if (customerDTOList != null) {
+                resp.setContentType("application/json");
+                Jsonb jsonb = JsonbBuilder.create();
+                jsonb.toJson(customerDTOList, writer);
+            } else {
+                writer.write("No customers found");
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

@@ -7,9 +7,10 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public interface CustomerBO extends SuperBo {
-    ArrayList<CustomerDTO> getAllCustomer(Connection connection) throws SQLException, ClassNotFoundException;
+    List<CustomerDTO> getAllCustomer(Connection connection) throws SQLException, ClassNotFoundException;
 
     boolean saveCustomer(CustomerDTO customerDTO, Connection connection) throws SQLException, ClassNotFoundException;
 

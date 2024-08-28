@@ -10,14 +10,15 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CustomerBOImpl implements CustomerBO {
     CustomerDAO customerDAO = (CustomerDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.CUSTOMER);
 
     @Override
-    public ArrayList<CustomerDTO> getAllCustomer(Connection connection) throws SQLException, ClassNotFoundException {
-        ArrayList<Customer> customers = customerDAO.getAll(connection);
-        ArrayList<CustomerDTO> customerDTOS = new ArrayList<>();
+    public List<CustomerDTO> getAllCustomer(Connection connection) throws SQLException, ClassNotFoundException {
+        List<CustomerDTO> customerDTOS = new ArrayList<>();
+        List<Customer> customers = customerDAO.getAll(connection);
         for (Customer customer : customers) {
             customerDTOS.add(new CustomerDTO(customer.getId(), customer.getName(), customer.getAddress(), customer.getPhone()));
         }
