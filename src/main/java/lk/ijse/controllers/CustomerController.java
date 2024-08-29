@@ -51,25 +51,32 @@ public class CustomerController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-       
-        try (PrintWriter out = resp.getWriter()) {
-            // Generate a new customer ID using the connection initialized in init()
+        String action = req.getParameter("action");
+        if ("loadAll".equals(action)) {
+            loadAllCustomers(req, resp);
+        } else {
+            generateNewCustomerID(resp, req);
+        }
+    }
+
+    private void generateNewCustomerID(HttpServletResponse resp, HttpServletRequest req) {
+        try (var Writer = resp.getWriter()) {
 
             String newCustomerId = customerBO.generateNewCustomerId(connection);
 
-            // Set response content type
-            resp.setContentType("text/plain");
+            var jsonb = JsonbBuilder.create();
+            resp.setContentType("application/json");
 
-            // Send the generated customer ID as the response
-            out.print(newCustomerId);
+            jsonb.toJson(newCustomerId, Writer);
 
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        loadAllCustomers(req, resp);
-        System.out.println("load");
     }
+
     private void loadAllCustomers(HttpServletRequest req, HttpServletResponse resp) {
         try (var writer = resp.getWriter()) {
             List<CustomerDTO> customerDTOList = customerBO.getAllCustomer(connection);
