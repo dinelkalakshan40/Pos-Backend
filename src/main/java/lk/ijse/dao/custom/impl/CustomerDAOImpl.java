@@ -65,17 +65,17 @@ public class CustomerDAOImpl implements CustomerDAO {
             }
         }
     }
-    /*@Override
-    public boolean update(Customer entity, Connection connection) throws SQLException {
+    @Override
+    public boolean update(String custid, Customer entity, Connection connection) throws SQLException {
 
-        String sql = "UPDATE customer SET cus_name=?,cus_address=?,cus_mobile=? WHERE cus_id=?";
+        String sql = "UPDATE customer SET name=?,phone=?,address=? WHERE id=?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, entity.getName());
-            stmt.setString(2, entity.getAddress());
-            stmt.setString(3, entity.getPhone());
-            stmt.setString(4, entity.getId());
+            stmt.setString(2, entity.getPhone());
+            stmt.setString(3, entity.getAddress());
+            stmt.setString(4, custid);
             return stmt.executeUpdate() > 0;
         }
-    }*/
+    }
 
 }

@@ -30,6 +30,7 @@ import java.util.List;
 public class CustomerController extends HttpServlet {
 
     Connection connection;
+    CustomerBO customerBO = (CustomerBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.CUSTOMER_BO);
 
 
     @Override
@@ -46,7 +47,7 @@ public class CustomerController extends HttpServlet {
         }
     }
 
-    CustomerBO customerBO = (CustomerBO) BOFactory.getBoFactory().getBO(BOFactory.BOTypes.CUSTOMER_BO);
+
 
 
     @Override
@@ -132,4 +133,31 @@ public class CustomerController extends HttpServlet {
         }
     }
 
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        if (!req.getContentType().toLowerCase().startsWith("application/json") || req.getContentType() == null) {
+            resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Content type must be application/json");
+        }
+        try (var writer = resp.getWriter()) {
+            var id = req.getParameter("id");
+            Jsonb jsonb = JsonbBuilder.create();
+            System.out.println("create jsonb");
+            CustomerDTO customerDTO = jsonb.fromJson(req.getReader(), CustomerDTO.class);
+            boolean isUpdated = customerBO.updateCustomer(id, customerDTO, connection);
+
+            if (isUpdated) {
+                writer.println("Customer updated");
+                resp.setStatus(HttpServletResponse.SC_OK);
+            } else {
+                writer.println("Customer not updated");
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -35,5 +35,11 @@ public class CustomerBOImpl implements CustomerBO {
         return customerDAO.generateNewId(connection);
     }
 
+    @Override
+    public boolean updateCustomer(String id, CustomerDTO customerDTO, Connection connection) throws SQLException, ClassNotFoundException {
+        return customerDAO.update(id,
+                new Customer(customerDTO.getId(), customerDTO.getName(), customerDTO.getPhone(), customerDTO.getAddress()), connection);
+    }
+
 
 }
