@@ -48,8 +48,6 @@ public class CustomerController extends HttpServlet {
     }
 
 
-
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
@@ -159,5 +157,25 @@ public class CustomerController extends HttpServlet {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        var id = req.getParameter("id");
+        try {
+            boolean isDeleted = customerBO.deleteCustomer(id, connection);
+            if (isDeleted) {
+                resp.getWriter().println("Customer deleted");
+                resp.setStatus(HttpServletResponse.SC_OK);
+            } else {
+                resp.getWriter().println("Customer not deleted");
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
