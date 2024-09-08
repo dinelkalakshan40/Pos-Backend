@@ -15,7 +15,7 @@ public class CustomerDAOImpl implements CustomerDAO {
         var ps = connection.prepareStatement("SELECT * FROM customer");
         var resultSet = ps.executeQuery();
         List<Customer> customerList = new ArrayList<>();
-        while (resultSet.next()){
+        while (resultSet.next()) {
             Customer customers = new Customer(
                     resultSet.getString("id"),
                     resultSet.getString("name"),
@@ -39,6 +39,7 @@ public class CustomerDAOImpl implements CustomerDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+
     @Override
     public String generateNewId(Connection connection) throws SQLException {
         String sql = "SELECT id FROM customer ORDER BY id DESC LIMIT 1";
@@ -65,6 +66,7 @@ public class CustomerDAOImpl implements CustomerDAO {
             }
         }
     }
+
     @Override
     public boolean update(String custid, Customer entity, Connection connection) throws SQLException {
 
@@ -77,6 +79,7 @@ public class CustomerDAOImpl implements CustomerDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+
     @Override
     public boolean delete(String custId, Connection connection) throws SQLException {
         String sql = "DELETE FROM customer WHERE id=?";
@@ -84,6 +87,23 @@ public class CustomerDAOImpl implements CustomerDAO {
             stmt.setString(1, custId);
             return stmt.executeUpdate() > 0;
         }
+    }
+
+    public Customer search(String custId, Connection connection) throws SQLException {
+        Customer customer = null;
+        String sql = "SELECT * FROM customer WHERE id=?";
+        var ps = connection.prepareStatement(sql);
+        ps.setString(1, custId);
+        var rs = ps.executeQuery();
+        if (rs.next()) {  // Use if instead of while
+            String id = rs.getString("id");
+            String name = rs.getString("name");
+            String phone = rs.getString("phone");
+            String address = rs.getString("address");
+
+            customer = new Customer(id, name, phone, address);
+        }
+        return customer;
     }
 
 }

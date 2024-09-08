@@ -50,9 +50,11 @@ public class CustomerController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String action = req.getParameter("action");
-        if ("loadAll".equals(action)) {
+
+        if ("loadAll".equals(req.getParameter("action"))) {
             loadAllCustomers(req, resp);
+        } else if (req.getParameter("customerID") != null) {
+            searchCustomersByID(req, resp);
         } else {
             generateNewCustomerID(resp, req);
         }
@@ -93,6 +95,19 @@ public class CustomerController extends HttpServlet {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void searchCustomersByID(HttpServletRequest req, HttpServletResponse resp) {
+        var customerID = req.getParameter("customerID");
+        try (var writer = resp.getWriter()){
+            CustomerDTO customer = customerBO.searchCustomer(customerID,connection);
+            var jsonb = JsonbBuilder.create();
+            resp.setContentType("application/json");
+            jsonb.toJson(customer,writer);
+        } catch (IOException | SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

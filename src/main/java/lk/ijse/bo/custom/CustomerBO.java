@@ -19,4 +19,6 @@ public interface CustomerBO extends SuperBo {
     boolean updateCustomer(String id, CustomerDTO customerDTO, Connection connection) throws SQLException, ClassNotFoundException;
 
     boolean deleteCustomer(String id, Connection connection) throws SQLException, ClassNotFoundException;
+
+    CustomerDTO searchCustomer(String customerID, Connection connection) throws SQLException, ClassNotFoundException;
 }
