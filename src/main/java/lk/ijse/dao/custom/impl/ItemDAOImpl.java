@@ -95,7 +95,6 @@ public class ItemDAOImpl implements ItemDAO {
         String sql = "SELECT * FROM item WHERE itemID=?";
         var ps = connection.prepareStatement(sql);
         ps.setString(1, itemid);
-        System.out.println("clall");
         var rs = ps.executeQuery();
         if (rs.next()) {  // Use if instead of while
             String itemID = rs.getString("itemID");
