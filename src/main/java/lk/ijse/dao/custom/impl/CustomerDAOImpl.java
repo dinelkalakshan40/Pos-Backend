@@ -89,6 +89,7 @@ public class CustomerDAOImpl implements CustomerDAO {
         }
     }
 
+    @Override
     public Customer search(String custId, Connection connection) throws SQLException {
         Customer customer = null;
         String sql = "SELECT * FROM customer WHERE id=?";

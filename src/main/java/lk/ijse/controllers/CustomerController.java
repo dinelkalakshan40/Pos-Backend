@@ -81,7 +81,7 @@ public class CustomerController extends HttpServlet {
     private void loadAllCustomers(HttpServletRequest req, HttpServletResponse resp) {
         try (var writer = resp.getWriter()) {
             List<CustomerDTO> customerDTOList = customerBO.getAllCustomer(connection);
-            System.out.println("customerDTOList" + customerDTOList);
+
             if (customerDTOList != null) {
                 resp.setContentType("application/json");
                 Jsonb jsonb = JsonbBuilder.create();
@@ -120,10 +120,10 @@ public class CustomerController extends HttpServlet {
         if (!req.getContentType().toLowerCase().startsWith("application/json") || req.getContentType() == null) {
             resp.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Content type must be application/json");
         }
-        System.out.println("start try catch");
         try (var writer = resp.getWriter()) {
             Jsonb jsonb = JsonbBuilder.create();
             CustomerDTO customerDTO = jsonb.fromJson(req.getReader(), CustomerDTO.class);
+
 
             boolean isSaved = customerBO.saveCustomer(customerDTO, connection);
             if (isSaved) {
@@ -155,7 +155,6 @@ public class CustomerController extends HttpServlet {
         try (var writer = resp.getWriter()) {
             var id = req.getParameter("id");
             Jsonb jsonb = JsonbBuilder.create();
-            System.out.println("create jsonb");
             CustomerDTO customerDTO = jsonb.fromJson(req.getReader(), CustomerDTO.class);
             boolean isUpdated = customerBO.updateCustomer(id, customerDTO, connection);
 

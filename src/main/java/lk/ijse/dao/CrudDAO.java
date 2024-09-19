@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface CrudDAO<T> extends SuperDAO {
-    public List<Customer> getAll(Connection connection) throws SQLException, ClassNotFoundException;
+     List<T> getAll(Connection connection) throws SQLException, ClassNotFoundException;
     boolean save(T entity,Connection connection) throws SQLException, ClassNotFoundException;
     String generateNewId(Connection connection) throws SQLException, ClassNotFoundException;
     boolean update(String id, T entity,Connection connection) throws SQLException, ClassNotFoundException;
